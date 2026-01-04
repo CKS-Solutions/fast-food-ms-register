@@ -1,0 +1,264 @@
+service: ms-register
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'api'}
+  region: us-east-1
+  vpc:
+    securityGroupIds:
+      - Fn::GetAtt: [CKSRegisterLambdaSecurityGroup, GroupId]
+    subnetIds:
+      - Ref: CKSRegisterPublicSubnetA
+      - Ref: CKSRegisterPublicSubnetB
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DeleteNetworkInterface
+          Resource: '*'
+
+  environment:
+    REGION: ${self:provider.region}
+    STAGE: ${self:provider.stage}
+    NODE_ENV: production
+    DB_SECRET_ARN:
+      Fn::GetAtt: [CKSRegisterRDS, MasterUserSecret.SecretArn]
+    DB_HOST:
+      Fn::GetAtt: [CKSRegisterRDS, Endpoint.Address]
+    DB_PORT: '5432'
+    DB_NAME: ms_register
+
+package:
+  individually: true
+  excludeDevDependencies: true
+  exclude:
+    - node_modules/@aws-sdk/**
+    - node_modules/**/@aws-sdk/**
+    - '**/*.test.ts'
+    - '**/*.spec.ts'
+    - '**/*.test.js'
+    - '**/*.spec.js'
+
+functions:
+  api:
+    handler: src/adapters/driver/lambda/handler.handler
+    memorySize: 512
+    timeout: 30
+    events:
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true
+      - http:
+          path: /
+          method: ANY
+          cors: true
+
+resources:
+  Resources:
+    CKSRegisterVPC:
+      Type: AWS::EC2::VPC
+      Properties:
+        CidrBlock: 10.1.0.0/16
+        EnableDnsSupport: true
+        EnableDnsHostnames: true
+        Tags:
+          - Key: Name
+            Value: CKSRegisterVPC
+
+    CKSRegisterInternetGateway:
+      Type: AWS::EC2::InternetGateway
+      Properties:
+        Tags:
+          - Key: Name
+            Value: CKSRegisterInternetGateway
+
+    CKSRegisterVPCGatewayAttachment:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        VpcId:
+          Ref: CKSRegisterVPC
+        InternetGatewayId:
+          Ref: CKSRegisterInternetGateway
+
+    CKSRegisterPublicRouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId:
+          Ref: CKSRegisterVPC
+        Tags:
+          - Key: Name
+            Value: CKSRegisterPublicRouteTable
+
+    CKSRegisterPublicRoute:
+      Type: AWS::EC2::Route
+      Properties:
+        RouteTableId:
+          Ref: CKSRegisterPublicRouteTable
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId:
+          Ref: CKSRegisterInternetGateway
+
+    CKSRegisterPublicSubnetA:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: CKSRegisterVPC
+        CidrBlock: 10.1.1.0/24
+        AvailabilityZone: us-east-1a
+        MapPublicIpOnLaunch: true
+        Tags:
+          - Key: Name
+            Value: CKSRegisterPublicSubnetA
+
+    CKSRegisterPublicSubnetB:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: CKSRegisterVPC
+        CidrBlock: 10.1.2.0/24
+        AvailabilityZone: us-east-1b
+        MapPublicIpOnLaunch: true
+        Tags:
+          - Key: Name
+            Value: CKSRegisterPublicSubnetB
+
+    CKSRegisterPublicSubnetARouteTableAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId:
+          Ref: CKSRegisterPublicSubnetA
+        RouteTableId:
+          Ref: CKSRegisterPublicRouteTable
+
+    CKSRegisterPublicSubnetBRouteTableAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId:
+          Ref: CKSRegisterPublicSubnetB
+        RouteTableId:
+          Ref: CKSRegisterPublicRouteTable
+
+    CKSRegisterRDSSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: RDS Security Group for Register MS
+        VpcId:
+          Ref: CKSRegisterVPC
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 5432
+            ToPort: 5432
+            SourceSecurityGroupId:
+              Fn::GetAtt: [CKSRegisterLambdaSecurityGroup, GroupId]
+        SecurityGroupEgress:
+          - IpProtocol: '-1'
+            CidrIp: 0.0.0.0/0
+        Tags:
+          - Key: Name
+            Value: CKSRegisterRDSSecurityGroup
+
+    CKSRegisterLambdaSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Lambda Security Group for Register MS
+        VpcId:
+          Ref: CKSRegisterVPC
+        SecurityGroupEgress:
+          - IpProtocol: '-1'
+            CidrIp: 0.0.0.0/0
+        Tags:
+          - Key: Name
+            Value: CKSRegisterLambdaSecurityGroup
+
+    CKSRegisterPublicSubnetGroup:
+      Type: AWS::RDS::DBSubnetGroup
+      Properties:
+        DBSubnetGroupDescription: Subnet group for CKS Register RDS
+        SubnetIds:
+          - Ref: CKSRegisterPublicSubnetA
+          - Ref: CKSRegisterPublicSubnetB
+        Tags:
+          - Key: Name
+            Value: CKSRegisterPublicSubnetGroup
+
+    CKSRegisterRDS:
+      Type: AWS::RDS::DBInstance
+      DeletionPolicy: Delete
+      Properties:
+        DBInstanceIdentifier: ms-register-postgres-${self:provider.stage}
+        AllocatedStorage: '20'
+        DBInstanceClass: db.t4g.micro
+        Engine: postgres
+        EngineVersion: '15.15'
+        DBName: ms_register
+
+        MasterUsername: postgres
+        ManageMasterUserPassword: true
+        MasterUserSecret:
+          KmsKeyId: alias/aws/secretsmanager
+
+        PubliclyAccessible: true
+        MultiAZ: false
+        BackupRetentionPeriod: 0
+        DeletionProtection: false
+        EnablePerformanceInsights: false
+
+        VPCSecurityGroups:
+          - Fn::GetAtt: [CKSRegisterRDSSecurityGroup, GroupId]
+        DBSubnetGroupName:
+          Ref: CKSRegisterPublicSubnetGroup
+        Tags:
+          - Key: Name
+            Value: CKSRegisterRDS
+
+  Outputs:
+    DbSecretArn:
+      Value:
+        Fn::GetAtt: [CKSRegisterRDS, MasterUserSecret.SecretArn]
+    DbHost:
+      Value:
+        Fn::GetAtt: [CKSRegisterRDS, Endpoint.Address]
+    ApiUrl:
+      Value:
+        Fn::Join:
+          - ''
+          - - 'https://'
+            - Ref: ApiGatewayRestApi
+            - '.execute-api.'
+            - ${self:provider.region}
+            - '.amazonaws.com/'
+            - ${self:provider.stage}
+
+plugins:
+  - serverless-esbuild
+  - serverless-prune-plugin
+
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+    target: node20
+    platform: node
+    exclude:
+      - better-sqlite3
+      - mysql2
+      - mysql
+      - sqlite3
+      - tedious
+      - pg-query-stream
+      - oracledb
+      - '@prisma/client'
+    keepNames: true
+  prune:
+    automatic: true
+    number: 3

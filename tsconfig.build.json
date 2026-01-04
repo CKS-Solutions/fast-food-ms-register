@@ -5,6 +5,7 @@
     "test",
     "dist",
     "**/*spec.ts",
-    "fast-food-core-api"
+    "fast-food-core-api",
+    "fast-food-ms-order"
   ]
 }

@@ -1,0 +1,70 @@
+service: ms-register
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'local'}
+  region: us-east-1
+  environment:
+    REGION: ${self:provider.region}
+    STAGE: ${self:provider.stage}
+    NODE_ENV: development
+    DATABASE_URL: ${env:DATABASE_URL, 'postgresql://postgres:postgres@localhost:5432/ms_register'}
+
+package:
+  individually: true
+  excludeDevDependencies: true
+  exclude:
+    - node_modules/@aws-sdk/**
+    - node_modules/**/@aws-sdk/**
+    - '**/*.test.ts'
+    - '**/*.spec.ts'
+    - '**/*.test.js'
+    - '**/*.spec.js'
+
+functions:
+  api:
+    handler: src/adapters/driver/lambda/handler.handler
+    memorySize: 512
+    timeout: 30
+    events:
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true
+      - http:
+          path: /
+          method: ANY
+          cors: true
+
+plugins:
+  - serverless-esbuild
+  - serverless-prune-plugin
+  - serverless-localstack
+
+custom:
+  localstack:
+    stages:
+      - local
+    host: http://localhost
+    edgePort: 4566
+    autostart: false
+  esbuild:
+    bundle: true
+    minify: false
+    target: node20
+    platform: node
+    exclude:
+      - better-sqlite3
+      - mysql2
+      - mysql
+      - sqlite3
+      - tedious
+      - pg-query-stream
+      - oracledb
+      - '@prisma/client'
+    keepNames: true
+  prune:
+    automatic: true
+    number: 3
