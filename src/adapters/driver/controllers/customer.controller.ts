@@ -1,17 +1,37 @@
 import { CustomerListDto } from '@dto/customer-list.dto';
 import { CustomerDto } from '@dto/customer.dto';
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Inject,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { CreateCustomerUseCase } from '@usecases/customer/create-customer.use-case';
-import { FindClientByCpfUseCase } from '@usecases/customer/find-client-by-cpf.use-case';
-import { ListCustomerUseCase } from '@usecases/customer/list-customer.use-case';
+import {
+  ICreateCustomerUseCase,
+  CREATE_CUSTOMER_USE_CASE_TOKEN,
+} from '@usecases/customer/create-customer.use-case';
+import {
+  IFindClientByCpfUseCase,
+  FIND_CLIENT_BY_CPF_USE_CASE_TOKEN,
+} from '@usecases/customer/find-client-by-cpf.use-case';
+import {
+  IListCustomerUseCase,
+  LIST_CUSTOMER_USE_CASE_TOKEN,
+} from '@usecases/customer/list-customer.use-case';
 
 @Controller('customers')
 export class CustomerController {
   constructor(
-    private readonly createCustomerUseCase: CreateCustomerUseCase,
-    private readonly listCustomerUseCase: ListCustomerUseCase,
-    private readonly findClientByCpfUseCase: FindClientByCpfUseCase,
+    @Inject(CREATE_CUSTOMER_USE_CASE_TOKEN)
+    private readonly createCustomerUseCase: ICreateCustomerUseCase,
+    @Inject(LIST_CUSTOMER_USE_CASE_TOKEN)
+    private readonly listCustomerUseCase: IListCustomerUseCase,
+    @Inject(FIND_CLIENT_BY_CPF_USE_CASE_TOKEN)
+    private readonly findClientByCpfUseCase: IFindClientByCpfUseCase,
   ) {}
 
   @Post()

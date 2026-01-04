@@ -1,5 +1,7 @@
 import { Customer } from '@entities/customer';
 
+export const CUSTOMER_REPOSITORY_TOKEN = Symbol('ICustomerRepository');
+
 export interface ICustomerRepository {
   get(cpf: string): Promise<Customer | null>;
   list(customerFilter: Partial<Customer>): Promise<Customer[]>;
