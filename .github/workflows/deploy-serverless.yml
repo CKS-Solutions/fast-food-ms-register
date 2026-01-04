@@ -28,11 +28,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build TypeScript
-        run: pnpm build
-
       - name: Generate Prisma Client
         run: pnpm prisma:generate
+
+      - name: Build TypeScript
+        run: pnpm build
 
       - name: Install Serverless Framework
         run: pnpm add -g serverless
