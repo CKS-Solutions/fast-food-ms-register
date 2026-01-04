@@ -16,6 +16,16 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@entities/*": ["./src/core/domain/entities/*"],
+      "@ports/*": ["src/core/domain/ports/*"],
+      "@services/*": ["./src/core/domain/services/*"],
+      "@usecases/*": ["./src/core/application/use_cases/*"],
+      "@controllers/*": ["./src/adapters/driver/controllers/*"],
+      "@dto/*": ["./src/adapters/driver/dto/*"],
+      "@repositories/*": ["src/adapters/driven/persistance/repositories/*"],
+      "@shared/*": ["src/shared/*"]
+    }
   }
 }
