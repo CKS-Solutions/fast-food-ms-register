@@ -1,0 +1,31 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": "(\\.(test|spec)\\.ts)$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@entities/(.*)$": "<rootDir>/src/core/domain/entities/$1",
+    "^@ports/(.*)$": "<rootDir>/src/core/domain/ports/$1",
+    "^@usecases/(.*)$": "<rootDir>/src/core/application/use_cases/$1",
+    "^@repositories/(.*)$": "<rootDir>/src/adapters/driven/persistance/repositories/$1",
+    "^@services/(.*)$": "<rootDir>/src/core/domain/services/$1",
+    "^@dto/(.*)$": "<rootDir>/src/adapters/driver/dto/$1",
+    "^@shared/(.*)$": "<rootDir>/src/shared/$1",
+    "^@controllers/(.*)$": "<rootDir>/src/adapters/driver/controllers/$1"
+  },
+  "collectCoverageFrom": [
+    "src/**/*.(t|j)s",
+    "!src/**/*.spec.ts",
+    "!src/**/*.test.ts"
+  ],
+  "coverageDirectory": "./coverage",
+  "testPathIgnorePatterns": [
+    "/node_modules/",
+    "/dist/",
+    "/fast-food-core-api/"
+  ]
+}
+
