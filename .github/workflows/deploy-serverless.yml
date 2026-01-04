@@ -17,7 +17,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 9
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,10 +29,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build TypeScript
-        run: pnpm run build
+        run: pnpm build
 
       - name: Generate Prisma Client
-        run: pnpm run prisma:generate
+        run: pnpm prisma:generate
 
       - name: Install Serverless Framework
         run: pnpm add -g serverless
@@ -48,7 +48,7 @@ jobs:
         run: serverless deploy --stage api
 
       - name: Migrate Database
-        run: pnpm run prisma:migrate:deploy:production
+        run: pnpm prisma:migrate:deploy:production
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
