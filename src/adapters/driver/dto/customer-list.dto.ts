@@ -13,4 +13,3 @@ export class CustomerListDto {
   @ApiProperty({ required: false })
   public readonly phone?: string;
 }
-

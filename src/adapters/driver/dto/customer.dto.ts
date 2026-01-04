@@ -25,4 +25,3 @@ export class CustomerDto {
     this.phone = phone;
   }
 }
-

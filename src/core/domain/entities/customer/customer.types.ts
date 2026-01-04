@@ -6,4 +6,3 @@ export type DatabaseCustomer = {
   createdAt: Date;
   updatedAt: Date;
 };
-

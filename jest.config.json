@@ -22,10 +22,5 @@
     "!src/**/*.test.ts"
   ],
   "coverageDirectory": "./coverage",
-  "testPathIgnorePatterns": [
-    "/node_modules/",
-    "/dist/",
-    "/fast-food-core-api/"
-  ]
+  "testPathIgnorePatterns": ["/node_modules/", "/dist/", "/fast-food-core-api/"]
 }
-

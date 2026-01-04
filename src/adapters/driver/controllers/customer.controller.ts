@@ -53,4 +53,3 @@ export class CustomerController {
     return await this.findClientByCpfUseCase.execute(cpf);
   }
 }
-

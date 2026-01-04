@@ -7,4 +7,3 @@ export interface ICustomerRepository {
   update(cpf: string, customer: Omit<Customer, 'cpf'>): Promise<Customer>;
   delete(cpf: string): Promise<void>;
 }
-

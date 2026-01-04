@@ -46,4 +46,3 @@ describe('Customer', () => {
     expect(customer.phone).toBe(expectedCustomer.phone);
   });
 });
-

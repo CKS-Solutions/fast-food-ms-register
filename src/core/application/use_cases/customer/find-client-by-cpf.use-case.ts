@@ -18,4 +18,3 @@ export class FindClientByCpfUseCase {
     return result;
   }
 }
-

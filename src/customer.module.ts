@@ -17,4 +17,3 @@ import { FindClientByCpfUseCase } from '@usecases/customer/find-client-by-cpf.us
   ],
 })
 export class CustomerModule {}
-

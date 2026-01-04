@@ -70,4 +70,3 @@ describe('CreateCustomerUseCase', () => {
     ).rejects.toThrow(HttpException);
   });
 });
-

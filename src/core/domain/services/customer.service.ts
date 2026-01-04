@@ -26,4 +26,3 @@ export class CustomerService {
     return customerFiltersModel;
   }
 }
-

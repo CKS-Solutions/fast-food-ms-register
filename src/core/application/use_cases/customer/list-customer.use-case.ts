@@ -16,4 +16,3 @@ export class ListCustomerUseCase {
     return await this.customerRepository.list(filtersModel);
   }
 }
-
