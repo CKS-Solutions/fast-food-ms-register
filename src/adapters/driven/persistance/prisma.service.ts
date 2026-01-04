@@ -30,7 +30,7 @@ export class PrismaService
   async onModuleInit(): Promise<void> {
     // Aguarda o DatabaseConfigService carregar a DATABASE_URL
     await this.databaseConfigService.ensureLoaded();
-    
+
     // Reconecta se a URL foi atualizada
     if (process.env.DATABASE_URL) {
       await this.$connect();
