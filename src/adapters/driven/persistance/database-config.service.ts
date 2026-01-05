@@ -76,7 +76,7 @@ export class DatabaseConfigService implements OnModuleInit {
     secretArn: string,
   ): Promise<string> {
     const client = new SecretsManagerClient({
-      region: process.env.REGION || process.env.AWS_REGION || 'us-east-1',
+      region: process.env.AWS_REGION || 'us-east-1',
     });
 
     const command = new GetSecretValueCommand({
