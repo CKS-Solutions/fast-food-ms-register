@@ -52,6 +52,8 @@ jobs:
         env:
           NODE_ENV: production
           RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
-          RDS_PORT: ${{ vars.RDS_PORT }}
+          RDS_PORT: ${{ vars.RDS_PORT || '5432' }}
           RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
           RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+          DB_NAME: ms_register
+          DATABASE_URL: postgresql://${{ secrets.RDS_USERNAME }}:${{ secrets.RDS_PASSWORD }}@${{ secrets.RDS_HOSTNAME }}:${{ vars.RDS_PORT || '5432' }}/ms_register?schema=public
