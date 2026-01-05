@@ -37,60 +37,32 @@ jobs:
       - name: Install Serverless Framework
         run: pnpm add -g serverless
 
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ vars.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
 
-      # - name: Deploy to AWS
-      #   run: serverless deploy --stage api
+      - name: Deploy to AWS
+        run: serverless deploy --stage api
       
-      - name: Debug Environment Variables (Unmasked)
+      - name: Debug Environment Variables
         run: |
-          echo "=== Environment Variables Debug (Unmasked) ==="
+          echo "=== Environment Variables Debug ==="
+          echo "NODE_ENV: $NODE_ENV"
+          echo "RDS_HOSTNAME: $RDS_HOSTNAME"
+          echo "RDS_PORT: $RDS_PORT"
+          echo "RDS_USERNAME: $RDS_USERNAME"
+          echo "RDS_PASSWORD: $RDS_PASSWORD"
+          echo "DB_NAME: $DB_NAME"
+          echo "DATABASE_URL: $DATABASE_URL"
           echo ""
-          echo "NODE_ENV:"
-          printf '%s\n' "$NODE_ENV"
-          echo ""
-          echo "RDS_HOSTNAME:"
-          printf '%s\n' "$RDS_HOSTNAME" | base64
-          echo "RDS_HOSTNAME (decoded):"
-          printf '%s\n' "$RDS_HOSTNAME"
-          echo ""
-          echo "RDS_PORT:"
-          printf '%s\n' "$RDS_PORT"
-          echo ""
-          echo "RDS_USERNAME:"
-          printf '%s\n' "$RDS_USERNAME" | base64
-          echo "RDS_USERNAME (decoded):"
-          printf '%s\n' "$RDS_USERNAME"
-          echo ""
-          echo "RDS_PASSWORD:"
-          printf '%s\n' "$RDS_PASSWORD" | base64
-          echo "RDS_PASSWORD (decoded):"
-          printf '%s\n' "$RDS_PASSWORD"
-          echo ""
-          echo "DB_NAME:"
-          printf '%s\n' "$DB_NAME"
-          echo ""
-          echo "DATABASE_URL (base64):"
-          printf '%s\n' "$DATABASE_URL" | base64
-          echo ""
-          echo "DATABASE_URL (decoded):"
-          printf '%s\n' "$DATABASE_URL"
-          echo ""
-          echo "=== Length Check ==="
-          echo "RDS_HOSTNAME length: ${#RDS_HOSTNAME}"
-          echo "RDS_USERNAME length: ${#RDS_USERNAME}"
-          echo "RDS_PASSWORD length: ${#RDS_PASSWORD}"
-          echo "DATABASE_URL length: ${#DATABASE_URL}"
-          echo ""
-          echo "=== First/Last chars (to verify without full exposure) ==="
-          [ -n "$RDS_HOSTNAME" ] && echo "RDS_HOSTNAME starts with: ${RDS_HOSTNAME:0:3}...${RDS_HOSTNAME: -3}" || echo "RDS_HOSTNAME is empty"
-          [ -n "$RDS_USERNAME" ] && echo "RDS_USERNAME starts with: ${RDS_USERNAME:0:3}...${RDS_USERNAME: -3}" || echo "RDS_USERNAME is empty"
-          [ -n "$RDS_PASSWORD" ] && echo "RDS_PASSWORD starts with: ${RDS_PASSWORD:0:3}...${RDS_PASSWORD: -3}" || echo "RDS_PASSWORD is empty"
+          echo "=== Checking if variables are set ==="
+          [ -z "$RDS_HOSTNAME" ] && echo "❌ RDS_HOSTNAME is empty" || echo "✅ RDS_HOSTNAME is set"
+          [ -z "$RDS_USERNAME" ] && echo "❌ RDS_USERNAME is empty" || echo "✅ RDS_USERNAME is set"
+          [ -z "$RDS_PASSWORD" ] && echo "❌ RDS_PASSWORD is empty" || echo "✅ RDS_PASSWORD is set"
+          [ -z "$DATABASE_URL" ] && echo "❌ DATABASE_URL is empty" || echo "✅ DATABASE_URL is set"
         env:
           NODE_ENV: production
           RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
