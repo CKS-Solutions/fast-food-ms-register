@@ -46,31 +46,6 @@ jobs:
 
       - name: Deploy to AWS
         run: serverless deploy --stage api
-      
-      - name: Debug Environment Variables
-        run: |
-          echo "=== Environment Variables Debug ==="
-          echo "NODE_ENV: $NODE_ENV"
-          echo "RDS_HOSTNAME: $RDS_HOSTNAME"
-          echo "RDS_PORT: $RDS_PORT"
-          echo "RDS_USERNAME: $RDS_USERNAME"
-          echo "RDS_PASSWORD: $RDS_PASSWORD"
-          echo "DB_NAME: $DB_NAME"
-          echo "DATABASE_URL: $DATABASE_URL"
-          echo ""
-          echo "=== Checking if variables are set ==="
-          [ -z "$RDS_HOSTNAME" ] && echo "❌ RDS_HOSTNAME is empty" || echo "✅ RDS_HOSTNAME is set"
-          [ -z "$RDS_USERNAME" ] && echo "❌ RDS_USERNAME is empty" || echo "✅ RDS_USERNAME is set"
-          [ -z "$RDS_PASSWORD" ] && echo "❌ RDS_PASSWORD is empty" || echo "✅ RDS_PASSWORD is set"
-          [ -z "$DATABASE_URL" ] && echo "❌ DATABASE_URL is empty" || echo "✅ DATABASE_URL is set"
-        env:
-          NODE_ENV: production
-          RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
-          RDS_PORT: ${{ vars.RDS_PORT || '5432' }}
-          RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
-          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
-          DB_NAME: ms_register
-          DATABASE_URL: postgresql://${{ secrets.RDS_USERNAME }}:${{ secrets.RDS_PASSWORD }}@${{ secrets.RDS_HOSTNAME }}:${{ vars.RDS_PORT || '5432' }}/ms_register?schema=public
 
       - name: Migrate Database
         run: pnpm prisma:migrate:deploy:production
