@@ -30,12 +30,12 @@ provider:
     REGION: ${self:provider.region}
     STAGE: ${self:provider.stage}
     NODE_ENV: production
-    DB_SECRET_ARN:
-      Fn::GetAtt: [CKSRegisterRDS, MasterUserSecret.SecretArn]
     DB_HOST:
       Fn::GetAtt: [CKSRegisterRDS, Endpoint.Address]
     DB_PORT: '5432'
     DB_NAME: ms_register
+    DB_USERNAME: postgres
+    DB_PASSWORD: ${env:DB_PASSWORD, 'postgres'}
 
 package:
   individually: true
@@ -221,9 +221,6 @@ resources:
             Value: CKSRegisterRDS
 
   Outputs:
-    DbSecretArn:
-      Value:
-        Fn::GetAtt: [CKSRegisterRDS, MasterUserSecret.SecretArn]
     DbHost:
       Value:
         Fn::GetAtt: [CKSRegisterRDS, Endpoint.Address]
