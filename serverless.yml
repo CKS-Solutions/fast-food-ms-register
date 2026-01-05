@@ -39,7 +39,7 @@ provider:
 
 package:
   individually: true
-  excludeDevDependencies: true
+  excludeDevDependencies: false
   exclude:
     - node_modules/@aws-sdk/**
     - node_modules/**/@aws-sdk/**
@@ -53,6 +53,13 @@ functions:
     handler: src/adapters/driver/lambda/handler.handler
     memorySize: 512
     timeout: 30
+    package:
+      patterns:
+        - 'node_modules/.prisma/**'
+        - 'node_modules/@prisma/**'
+        - 'node_modules/prisma/**'
+        - 'src/adapters/driven/persistance/migrations/**'
+        - 'prisma.config.ts'
     events:
       - http:
           path: /{proxy+}
@@ -273,3 +280,7 @@ custom:
   prune:
     automatic: true
     number: 3
+    includeLayers: false
+    exclude:
+      - '@prisma/client'
+      - '.prisma/client'
