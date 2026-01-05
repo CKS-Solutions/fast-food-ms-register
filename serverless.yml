@@ -155,11 +155,18 @@ resources:
         VpcId:
           Ref: CKSRegisterVPC
         SecurityGroupIngress:
+          # Permite conexões do Lambda
           - IpProtocol: tcp
             FromPort: 5432
             ToPort: 5432
             SourceSecurityGroupId:
               Fn::GetAtt: [CKSRegisterLambdaSecurityGroup, GroupId]
+          # Permite conexões externas (para migrações via CI/CD)
+          - IpProtocol: tcp
+            FromPort: 5432
+            ToPort: 5432
+            CidrIp: 0.0.0.0/0
+            Description: Allow external connections for migrations
         SecurityGroupEgress:
           - IpProtocol: '-1'
             CidrIp: 0.0.0.0/0
