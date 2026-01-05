@@ -203,9 +203,8 @@ resources:
         DBName: ms_register
 
         MasterUsername: postgres
-        ManageMasterUserPassword: true
-        MasterUserSecret:
-          KmsKeyId: alias/aws/secretsmanager
+        MasterUserPassword: ${env:DB_PASSWORD, 'postgres'}
+        ManageMasterUserPassword: false
 
         PubliclyAccessible: true
         MultiAZ: false

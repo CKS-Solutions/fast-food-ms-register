@@ -46,14 +46,28 @@ jobs:
 
       - name: Deploy to AWS
         run: serverless deploy --stage api
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+      - name: Get RDS Endpoint
+        id: rds-info
+        run: |
+          DB_HOST=$(aws cloudformation describe-stacks \
+            --stack-name ms-register-api \
+            --query 'Stacks[0].Outputs[?OutputKey==`DbHost`].OutputValue' \
+            --output text \
+            --region ${{ vars.AWS_REGION }})
+          
+          echo "DB_HOST=$DB_HOST" >> $GITHUB_OUTPUT
+          echo "RDS endpoint: $DB_HOST"
 
       - name: Migrate Database
         run: pnpm prisma:migrate:deploy:production
         env:
           NODE_ENV: production
-          RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
+          RDS_HOSTNAME: ${{ steps.rds-info.outputs.DB_HOST }}
           RDS_PORT: ${{ vars.RDS_PORT || '5432' }}
-          RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
-          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+          RDS_USERNAME: postgres
+          RDS_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ms_register
-          DATABASE_URL: postgresql://${{ secrets.RDS_USERNAME }}:${{ secrets.RDS_PASSWORD }}@${{ secrets.RDS_HOSTNAME }}:${{ vars.RDS_PORT || '5432' }}/ms_register?schema=public
+          DATABASE_URL: postgresql://postgres:${{ secrets.DB_PASSWORD }}@${{ steps.rds-info.outputs.DB_HOST }}:${{ vars.RDS_PORT || '5432' }}/ms_register?schema=public
