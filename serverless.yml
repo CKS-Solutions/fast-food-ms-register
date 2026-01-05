@@ -249,6 +249,15 @@ custom:
     minify: true
     target: node20
     platform: node
+    external:
+      - class-validator
+      - class-transformer
+      - '@nestjs/websockets'
+      - '@nestjs/microservices'
+      - '@prisma/client'
+      - 'class-transformer/storage'
+      - '@nestjs/websockets/socket-module'
+      - '@nestjs/microservices/microservices-module'
     exclude:
       - better-sqlite3
       - mysql2
@@ -257,7 +266,6 @@ custom:
       - tedious
       - pg-query-stream
       - oracledb
-      - '@prisma/client'
     keepNames: true
   prune:
     automatic: true
