@@ -56,9 +56,16 @@ export class DatabaseConfigService implements OnModuleInit {
       );
       const dbSecret: DatabaseSecret = JSON.parse(secret) as DatabaseSecret;
 
-      const host = process.env.DB_HOST || 'localhost';
-      const port = process.env.DB_PORT || '5432';
-      const database = process.env.DB_NAME || 'ms_register';
+      // Prioriza variáveis RDS_* (usadas no deploy de produção)
+      // Depois tenta DB_* (usadas localmente ou em outros ambientes)
+      const host =
+        process.env.RDS_HOSTNAME ||
+        process.env.DB_HOST ||
+        process.env.DB_HOSTNAME ||
+        'localhost';
+      const port = process.env.RDS_PORT || process.env.DB_PORT || '5432';
+      const database =
+        process.env.DB_NAME || process.env.RDS_DB_NAME || 'ms_register';
 
       this.databaseUrl = `postgresql://${dbSecret.username}:${dbSecret.password}@${host}:${port}/${database}?schema=public`;
 
@@ -88,11 +95,20 @@ export class DatabaseConfigService implements OnModuleInit {
   }
 
   private buildDatabaseUrlFromEnv(): string {
-    const host = process.env.DB_HOST || 'localhost';
-    const port = process.env.DB_PORT || '5432';
-    const database = process.env.DB_NAME || 'ms_register';
-    const username = process.env.DB_USERNAME || 'postgres';
-    const password = process.env.DB_PASSWORD || 'postgres';
+    // Prioriza variáveis RDS_* (usadas no deploy de produção)
+    // Depois tenta DB_* (usadas localmente ou em outros ambientes)
+    const host =
+      process.env.RDS_HOSTNAME ||
+      process.env.DB_HOST ||
+      process.env.DB_HOSTNAME ||
+      'localhost';
+    const port = process.env.RDS_PORT || process.env.DB_PORT || '5432';
+    const database =
+      process.env.DB_NAME || process.env.RDS_DB_NAME || 'ms_register';
+    const username =
+      process.env.RDS_USERNAME || process.env.DB_USERNAME || 'postgres';
+    const password =
+      process.env.RDS_PASSWORD || process.env.DB_PASSWORD || 'postgres';
 
     return `postgresql://${username}:${password}@${host}:${port}/${database}?schema=public`;
   }
