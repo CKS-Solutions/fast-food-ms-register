@@ -4,7 +4,7 @@ import {
   CustomerService,
   CUSTOMER_SERVICE_TOKEN,
 } from '@services/customer.service';
-import { CustomerRepository } from '@repositories/customer.repository.impl';
+import { CustomerRepository } from './adapters/driven/repositories/customer.repository.impl';
 import { CUSTOMER_REPOSITORY_TOKEN } from '@ports/customer.repository';
 import {
   CreateCustomerUseCase,

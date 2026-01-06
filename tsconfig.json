@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipDefaultLibCheck": true,
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -9,7 +12,6 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -19,13 +21,13 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@entities/*": ["./src/core/domain/entities/*"],
-      "@ports/*": ["src/core/domain/ports/*"],
+      "@ports/*": ["./src/core/domain/ports/*"],
       "@services/*": ["./src/core/domain/services/*"],
       "@usecases/*": ["./src/core/application/use_cases/*"],
       "@controllers/*": ["./src/adapters/driver/controllers/*"],
       "@dto/*": ["./src/adapters/driver/dto/*"],
-      "@repositories/*": ["src/adapters/driven/persistance/repositories/*"],
-      "@shared/*": ["src/shared/*"]
+      "@repositories/*": ["src/adapters/driven/repositories/*"],
+      "@shared/*": ["./src/shared/*"]
     }
   }
 }
