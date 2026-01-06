@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateCustomerUseCase } from '@usecases/customer/create-customer.use-case';
+import { CreateCustomerUseCase } from '@usecases/create-customer/create-customer.use-case';
 import { CUSTOMER_REPOSITORY_TOKEN } from '@ports/customer.repository';
 import { CUSTOMER_SERVICE_TOKEN } from '@services/customer.service';
 import { HttpException } from '@nestjs/common';

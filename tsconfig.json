@@ -21,13 +21,17 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@entities/*": ["./src/core/domain/entities/*"],
-      "@ports/*": ["./src/core/domain/ports/*"],
       "@services/*": ["./src/core/domain/services/*"],
       "@usecases/*": ["./src/core/application/use_cases/*"],
-      "@controllers/*": ["./src/adapters/driver/controllers/*"],
+      "@ports/*": ["./src/core/domain/ports/*"],
       "@dto/*": ["./src/adapters/driver/dto/*"],
-      "@repositories/*": ["src/adapters/driven/repositories/*"],
-      "@shared/*": ["./src/shared/*"]
+      "@aws/*": ["./src/infra/aws/*"],
+      "@driven_sqs/*": ["./src/adapters/driven/sqs/*"],
+      "@driven_rds/*": ["./src/adapters/driven/rds/*"],
+      "@driven_lambda/*": ["./src/adapters/driven/lambda/*"],
+      "@di/*": ["./src/infra/di/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@shared/*": ["./src/shared/*"],
     }
   }
 }

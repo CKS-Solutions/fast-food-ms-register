@@ -1,16 +1,12 @@
 import { CustomerListDto } from '@dto/customer-list.dto';
 import { CustomerDto } from '@dto/customer.dto';
 import { Customer } from '@entities/customer';
-import { Injectable } from '@nestjs/common';
-
-export const CUSTOMER_SERVICE_TOKEN = Symbol('ICustomerService');
 
 export interface ICustomerService {
   create: (customer: CustomerDto) => Customer;
   convertFiltersToModel: (filters: CustomerListDto) => Partial<Customer>;
 }
 
-@Injectable()
 export class CustomerService implements ICustomerService {
   constructor() {}
 

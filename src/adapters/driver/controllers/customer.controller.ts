@@ -13,15 +13,15 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import {
   ICreateCustomerUseCase,
   CREATE_CUSTOMER_USE_CASE_TOKEN,
-} from '@usecases/customer/create-customer.use-case';
+} from '@usecases/create-customer/create-customer.use-case';
 import {
   IFindClientByCpfUseCase,
   FIND_CLIENT_BY_CPF_USE_CASE_TOKEN,
-} from '@usecases/customer/find-client-by-cpf.use-case';
+} from '@usecases/find-client-by-cpf/find-client-by-cpf.use-case';
 import {
   IListCustomerUseCase,
   LIST_CUSTOMER_USE_CASE_TOKEN,
-} from '@usecases/customer/list-customer.use-case';
+} from '@usecases/list-customer/list-customer.use-case';
 
 @Controller('customers')
 export class CustomerController {
