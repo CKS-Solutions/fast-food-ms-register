@@ -14,7 +14,11 @@
     "^@services/(.*)$": "<rootDir>/src/core/domain/services/$1",
     "^@dto/(.*)$": "<rootDir>/src/adapters/driver/dto/$1",
     "^@shared/(.*)$": "<rootDir>/src/shared/$1",
-    "^@controllers/(.*)$": "<rootDir>/src/adapters/driver/controllers/$1"
+    "^@controllers/(.*)$": "<rootDir>/src/adapters/driver/controllers/$1",
+    "^@di/(.*)$": "<rootDir>/src/infra/di/$1",
+    "^@utils/(.*)$": "<rootDir>/src/utils/$1",
+    "^@aws/(.*)$": "<rootDir>/src/infra/aws/$1",
+    "^@driven_rds/(.*)$": "<rootDir>/src/adapters/driven/rds/$1"
   },
   "collectCoverageFrom": [
     "src/**/*.(t|j)s",

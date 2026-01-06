@@ -1,28 +1,25 @@
-import { ListCustomerContainerFactory } from "@di/list-customer"
+import { FindClientByCpfContainerFactory } from "@di/find-client-by-cpf"
 import { getRegion, getStage } from "@utils/env"
-import { HTTPError, HTTPInternalServerError, HTTPSuccessResponse } from "@utils/http"
+import { HTTPBadRequest, HTTPError, HTTPInternalServerError, HTTPNotFound, HTTPSuccessResponse } from "@utils/http"
 import { getRDSCredentials } from "@utils/rds"
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
-import { CustomerListDto } from "@dto/customer-list.dto"
+import { ERROR_CODES } from "@shared/constants"
 
 export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   try {
-
     const stage = getStage()
     const region = getRegion()
 
     const rdsCredentials = await getRDSCredentials(region, stage)
-    const container = new ListCustomerContainerFactory(rdsCredentials)
+    const container = new FindClientByCpfContainerFactory(rdsCredentials)
 
-    const queryParams = event.queryStringParameters || {}
-    const filters: CustomerListDto = {
-      cpf: queryParams.cpf,
-      name: queryParams.name,
-      email: queryParams.email,
-      phone: queryParams.phone,
+    const cpf = event.pathParameters?.cpf
+    
+    if (!cpf) {
+      throw new HTTPBadRequest("CPF is required in path parameters")
     }
 
-    const res = await container.usecase.execute(filters)
+    const res = await container.usecase.execute(cpf)
 
     return new HTTPSuccessResponse(res).toLambdaResponse()
   } catch (error) {
@@ -31,9 +28,15 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return error.toLambdaResponse()
     }
 
+    if (error instanceof Error && error.message === ERROR_CODES.CUSTOMER_NOT_FOUND) {
+      const notFoundError = new HTTPNotFound("Customer not found")
+      return notFoundError.toLambdaResponse()
+    }
+
     console.error("Unexpected error:", error)
 
     const genericError = new HTTPInternalServerError("Internal Server Error")
     return genericError.toLambdaResponse()
   }
 }
+
