@@ -259,6 +259,10 @@ custom:
     minify: true
     target: node20
     platform: node
+    packager: pnpm
+    packagerOptions:
+      scripts:
+        - prisma generate
     external:
       - class-validator
       - class-transformer
