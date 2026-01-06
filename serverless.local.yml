@@ -20,22 +20,36 @@ package:
     - node_modules/**/@aws-sdk/**
     - '**/*.test.ts'
     - '**/*.spec.ts'
-    - '**/*.test.js'
-    - '**/*.spec.js'
 
 functions:
-  api:
-    handler: src/adapters/driver/lambda/handler.handler
-    memorySize: 512
+  createCustomer:
+    handler: src/adapters/driver/lambda/create_customer/create_customer.handler
+    memorySize: 128
     timeout: 30
     events:
       - http:
-          path: /{proxy+}
-          method: ANY
+          path: /v1/customers
+          method: POST
           cors: true
+
+  listCustomers:
+    handler: src/adapters/driver/lambda/list_customers/list_customers.handler
+    memorySize: 128
+    timeout: 30
+    events:
       - http:
-          path: /
-          method: ANY
+          path: /v1/customers
+          method: GET
+          cors: true
+
+  findCustomerByCpf:
+    handler: src/adapters/driver/lambda/find_customer_by_cpf/find_customer_by_cpf.handler
+    memorySize: 128
+    timeout: 30
+    events:
+      - http:
+          path: /v1/customers/{cpf}
+          method: GET
           cors: true
 
 plugins:
@@ -54,16 +68,6 @@ custom:
     bundle: true
     minify: false
     target: node20
-    platform: node
-    external:
-      - class-validator
-      - class-transformer
-      - '@nestjs/websockets'
-      - '@nestjs/microservices'
-      - '@prisma/client'
-      - 'class-transformer/storage'
-      - '@nestjs/websockets/socket-module'
-      - '@nestjs/microservices/microservices-module'
     exclude:
       - better-sqlite3
       - mysql2
@@ -72,7 +76,6 @@ custom:
       - tedious
       - pg-query-stream
       - oracledb
-    keepNames: true
   prune:
     automatic: true
     number: 3

@@ -6,248 +6,56 @@ provider:
   runtime: nodejs20.x
   stage: ${opt:stage, 'api'}
   region: us-east-1
-  vpc:
-    securityGroupIds:
-      - Fn::GetAtt: [CKSRegisterLambdaSecurityGroup, GroupId]
-    subnetIds:
-      - Ref: CKSRegisterPublicSubnetA
-      - Ref: CKSRegisterPublicSubnetB
   iam:
     role:
       statements:
         - Effect: Allow
           Action:
             - secretsmanager:GetSecretValue
-          Resource: '*'
-        - Effect: Allow
-          Action:
-            - ec2:CreateNetworkInterface
-            - ec2:DescribeNetworkInterfaces
-            - ec2:DeleteNetworkInterface
-          Resource: '*'
-
+          Resource: "*"
   environment:
     REGION: ${self:provider.region}
     STAGE: ${self:provider.stage}
-    NODE_ENV: production
-    DB_HOST:
-      Fn::GetAtt: [CKSRegisterRDS, Endpoint.Address]
-    DB_PORT: '5432'
-    DB_NAME: ms_register
-    DB_USERNAME: postgres
-    DB_PASSWORD: ${env:DB_PASSWORD, 'postgres'}
 
 package:
   individually: true
-  excludeDevDependencies: false
+  excludeDevDependencies: true
   exclude:
     - node_modules/@aws-sdk/**
     - node_modules/**/@aws-sdk/**
     - '**/*.test.ts'
     - '**/*.spec.ts'
-    - '**/*.test.js'
-    - '**/*.spec.js'
 
 functions:
-  api:
-    handler: src/adapters/driver/lambda/handler.handler
-    memorySize: 512
+  createCustomer:
+    handler: src/adapters/driver/lambda/create_customer/create_customer.handler
+    memorySize: 128
     timeout: 30
-    package:
-      patterns:
-        - 'node_modules/.prisma/**'
-        - 'node_modules/@prisma/**'
-        - 'node_modules/prisma/**'
-        - 'src/adapters/driven/persistance/migrations/**'
-        - 'prisma.config.ts'
     events:
       - http:
-          path: /{proxy+}
-          method: ANY
+          path: /v1/customers
+          method: POST
           cors: true
+
+  listCustomers:
+    handler: src/adapters/driver/lambda/list_customers/list_customers.handler
+    memorySize: 128
+    timeout: 30
+    events:
       - http:
-          path: /
-          method: ANY
+          path: /v1/customers
+          method: GET
           cors: true
 
-resources:
-  Resources:
-    CKSRegisterVPC:
-      Type: AWS::EC2::VPC
-      Properties:
-        CidrBlock: 10.1.0.0/16
-        EnableDnsSupport: true
-        EnableDnsHostnames: true
-        Tags:
-          - Key: Name
-            Value: CKSRegisterVPC
-
-    CKSRegisterInternetGateway:
-      Type: AWS::EC2::InternetGateway
-      Properties:
-        Tags:
-          - Key: Name
-            Value: CKSRegisterInternetGateway
-
-    CKSRegisterVPCGatewayAttachment:
-      Type: AWS::EC2::VPCGatewayAttachment
-      Properties:
-        VpcId:
-          Ref: CKSRegisterVPC
-        InternetGatewayId:
-          Ref: CKSRegisterInternetGateway
-
-    CKSRegisterPublicRouteTable:
-      Type: AWS::EC2::RouteTable
-      Properties:
-        VpcId:
-          Ref: CKSRegisterVPC
-        Tags:
-          - Key: Name
-            Value: CKSRegisterPublicRouteTable
-
-    CKSRegisterPublicRoute:
-      Type: AWS::EC2::Route
-      Properties:
-        RouteTableId:
-          Ref: CKSRegisterPublicRouteTable
-        DestinationCidrBlock: 0.0.0.0/0
-        GatewayId:
-          Ref: CKSRegisterInternetGateway
-
-    CKSRegisterPublicSubnetA:
-      Type: AWS::EC2::Subnet
-      Properties:
-        VpcId:
-          Ref: CKSRegisterVPC
-        CidrBlock: 10.1.1.0/24
-        AvailabilityZone: us-east-1a
-        MapPublicIpOnLaunch: true
-        Tags:
-          - Key: Name
-            Value: CKSRegisterPublicSubnetA
-
-    CKSRegisterPublicSubnetB:
-      Type: AWS::EC2::Subnet
-      Properties:
-        VpcId:
-          Ref: CKSRegisterVPC
-        CidrBlock: 10.1.2.0/24
-        AvailabilityZone: us-east-1b
-        MapPublicIpOnLaunch: true
-        Tags:
-          - Key: Name
-            Value: CKSRegisterPublicSubnetB
-
-    CKSRegisterPublicSubnetARouteTableAssociation:
-      Type: AWS::EC2::SubnetRouteTableAssociation
-      Properties:
-        SubnetId:
-          Ref: CKSRegisterPublicSubnetA
-        RouteTableId:
-          Ref: CKSRegisterPublicRouteTable
-
-    CKSRegisterPublicSubnetBRouteTableAssociation:
-      Type: AWS::EC2::SubnetRouteTableAssociation
-      Properties:
-        SubnetId:
-          Ref: CKSRegisterPublicSubnetB
-        RouteTableId:
-          Ref: CKSRegisterPublicRouteTable
-
-    CKSRegisterRDSSecurityGroup:
-      Type: AWS::EC2::SecurityGroup
-      Properties:
-        GroupDescription: RDS Security Group for Register MS
-        VpcId:
-          Ref: CKSRegisterVPC
-        SecurityGroupIngress:
-          # Permite conexões do Lambda
-          - IpProtocol: tcp
-            FromPort: 5432
-            ToPort: 5432
-            SourceSecurityGroupId:
-              Fn::GetAtt: [CKSRegisterLambdaSecurityGroup, GroupId]
-          # Permite conexões externas (para migrações via CI/CD)
-          - IpProtocol: tcp
-            FromPort: 5432
-            ToPort: 5432
-            CidrIp: 0.0.0.0/0
-            Description: Allow external connections for migrations
-        SecurityGroupEgress:
-          - IpProtocol: '-1'
-            CidrIp: 0.0.0.0/0
-        Tags:
-          - Key: Name
-            Value: CKSRegisterRDSSecurityGroup
-
-    CKSRegisterLambdaSecurityGroup:
-      Type: AWS::EC2::SecurityGroup
-      Properties:
-        GroupDescription: Lambda Security Group for Register MS
-        VpcId:
-          Ref: CKSRegisterVPC
-        SecurityGroupEgress:
-          - IpProtocol: '-1'
-            CidrIp: 0.0.0.0/0
-        Tags:
-          - Key: Name
-            Value: CKSRegisterLambdaSecurityGroup
-
-    CKSRegisterPublicSubnetGroup:
-      Type: AWS::RDS::DBSubnetGroup
-      Properties:
-        DBSubnetGroupDescription: Subnet group for CKS Register RDS
-        SubnetIds:
-          - Ref: CKSRegisterPublicSubnetA
-          - Ref: CKSRegisterPublicSubnetB
-        Tags:
-          - Key: Name
-            Value: CKSRegisterPublicSubnetGroup
-
-    CKSRegisterRDS:
-      Type: AWS::RDS::DBInstance
-      DeletionPolicy: Delete
-      Properties:
-        DBInstanceIdentifier: ms-register-postgres-${self:provider.stage}
-        AllocatedStorage: '20'
-        DBInstanceClass: db.t4g.micro
-        Engine: postgres
-        EngineVersion: '15.15'
-        DBName: ms_register
-
-        MasterUsername: postgres
-        MasterUserPassword: ${env:DB_PASSWORD, 'postgres'}
-        ManageMasterUserPassword: false
-
-        PubliclyAccessible: true
-        MultiAZ: false
-        BackupRetentionPeriod: 0
-        DeletionProtection: false
-        EnablePerformanceInsights: false
-
-        VPCSecurityGroups:
-          - Fn::GetAtt: [CKSRegisterRDSSecurityGroup, GroupId]
-        DBSubnetGroupName:
-          Ref: CKSRegisterPublicSubnetGroup
-        Tags:
-          - Key: Name
-            Value: CKSRegisterRDS
-
-  Outputs:
-    DbHost:
-      Value:
-        Fn::GetAtt: [CKSRegisterRDS, Endpoint.Address]
-    ApiUrl:
-      Value:
-        Fn::Join:
-          - ''
-          - - 'https://'
-            - Ref: ApiGatewayRestApi
-            - '.execute-api.'
-            - ${self:provider.region}
-            - '.amazonaws.com/'
-            - ${self:provider.stage}
+  findCustomerByCpf:
+    handler: src/adapters/driver/lambda/find_customer_by_cpf/find_customer_by_cpf.handler
+    memorySize: 128
+    timeout: 30
+    events:
+      - http:
+          path: /v1/customers/{cpf}
+          method: GET
+          cors: true
 
 plugins:
   - serverless-esbuild
@@ -258,20 +66,6 @@ custom:
     bundle: true
     minify: true
     target: node20
-    platform: node
-    packager: pnpm
-    packagerOptions:
-      scripts:
-        - prisma generate
-    external:
-      - class-validator
-      - class-transformer
-      - '@nestjs/websockets'
-      - '@nestjs/microservices'
-      - '@prisma/client'
-      - 'class-transformer/storage'
-      - '@nestjs/websockets/socket-module'
-      - '@nestjs/microservices/microservices-module'
     exclude:
       - better-sqlite3
       - mysql2
@@ -280,11 +74,6 @@ custom:
       - tedious
       - pg-query-stream
       - oracledb
-    keepNames: true
   prune:
     automatic: true
     number: 3
-    includeLayers: false
-    exclude:
-      - '@prisma/client'
-      - '.prisma/client'
