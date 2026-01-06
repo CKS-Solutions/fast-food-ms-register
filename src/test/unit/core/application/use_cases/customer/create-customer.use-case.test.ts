@@ -1,12 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { CreateCustomerUseCase } from '@usecases/create-customer/create-customer.use-case';
-import { CUSTOMER_REPOSITORY_TOKEN } from '@ports/customer.repository';
-import { CUSTOMER_SERVICE_TOKEN } from '@services/customer.service';
-import { HttpException } from '@nestjs/common';
 import { Customer } from '@entities/customer';
 import { CustomerDto } from '@dto/customer.dto';
 import { ICustomerRepository } from '@ports/customer.repository';
 import { ICustomerService } from '@services/customer.service';
+import { ERROR_CODES } from '@shared/constants';
 
 describe('CreateCustomerUseCase', () => {
   let createCustomerUseCase: CreateCustomerUseCase;
@@ -27,39 +24,24 @@ describe('CreateCustomerUseCase', () => {
     mockCustomerDto.phone ?? '',
   );
 
-  beforeEach(async () => {
-    const mockRepository: jest.Mocked<ICustomerRepository> = {
+  beforeEach(() => {
+    customerRepository = {
       list: jest.fn(),
       create: jest.fn(),
       get: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
-    };
+    } as jest.Mocked<ICustomerRepository>;
 
-    const mockService: jest.Mocked<ICustomerService> = {
+    customerService = {
       create: jest.fn(),
       convertFiltersToModel: jest.fn(),
-    };
+    } as jest.Mocked<ICustomerService>;
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CreateCustomerUseCase,
-        {
-          provide: CUSTOMER_REPOSITORY_TOKEN,
-          useValue: mockRepository,
-        },
-        {
-          provide: CUSTOMER_SERVICE_TOKEN,
-          useValue: mockService,
-        },
-      ],
-    }).compile();
-
-    createCustomerUseCase = module.get<CreateCustomerUseCase>(
-      CreateCustomerUseCase,
+    createCustomerUseCase = new CreateCustomerUseCase(
+      customerRepository,
+      customerService,
     );
-    customerRepository = module.get(CUSTOMER_REPOSITORY_TOKEN);
-    customerService = module.get(CUSTOMER_SERVICE_TOKEN);
   });
 
   it('should create a customer when data is valid', async () => {
@@ -70,13 +52,24 @@ describe('CreateCustomerUseCase', () => {
     const result = await createCustomerUseCase.execute(mockCustomerDto);
 
     expect(result).toEqual(mockCustomer);
+    expect(customerRepository.list).toHaveBeenCalledWith({
+      cpf: mockCustomerDto.cpf,
+    });
+    expect(customerService.create).toHaveBeenCalledWith(mockCustomerDto);
+    expect(customerRepository.create).toHaveBeenCalledWith(mockCustomer);
   });
 
-  it('should throw bad request when customer already exists', async () => {
+  it('should throw error when customer already exists', async () => {
     jest.spyOn(customerRepository, 'list').mockResolvedValue([mockCustomer]);
 
     await expect(
       createCustomerUseCase.execute(mockCustomerDto),
-    ).rejects.toThrow(HttpException);
+    ).rejects.toThrow(ERROR_CODES.CUSTOMER_ALREADY_EXISTS);
+
+    expect(customerRepository.list).toHaveBeenCalledWith({
+      cpf: mockCustomerDto.cpf,
+    });
+    expect(customerService.create).not.toHaveBeenCalled();
+    expect(customerRepository.create).not.toHaveBeenCalled();
   });
 });

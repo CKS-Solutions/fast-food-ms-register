@@ -111,12 +111,11 @@ describe('CustomerRepository', () => {
       ];
 
       const mockSelect = jest.fn().mockResolvedValue(mockResults);
-      const mockWhere = jest.fn().mockReturnValue({
+      const queryBuilder = {
+        where: jest.fn().mockReturnThis(),
         select: mockSelect,
-      });
-      const mockConnection = jest.fn().mockReturnValue({
-        where: mockWhere,
-      });
+      };
+      const mockConnection = jest.fn().mockReturnValue(queryBuilder);
 
       const rdsClient = {
         connection: mockConnection,
@@ -126,7 +125,8 @@ describe('CustomerRepository', () => {
       const results = await customerRepo.list({ cpf: '12345678900' });
       
       expect(mockConnection).toHaveBeenCalledWith('customers');
-      expect(mockWhere).toHaveBeenCalledWith({ cpf: '12345678900' });
+      expect(queryBuilder.where).toHaveBeenCalledWith({ cpf: '12345678900' });
+      expect(mockSelect).toHaveBeenCalled();
       expect(results).toHaveLength(1);
       expect(results[0]).toBeInstanceOf(Customer);
       expect(results[0].cpf).toBe('12345678900');
@@ -145,12 +145,11 @@ describe('CustomerRepository', () => {
       ];
 
       const mockSelect = jest.fn().mockResolvedValue(mockResults);
-      const mockWhere = jest.fn().mockReturnValue({
+      const queryBuilder = {
+        where: jest.fn().mockReturnThis(),
         select: mockSelect,
-      });
-      const mockConnection = jest.fn().mockReturnValue({
-        where: mockWhere,
-      });
+      };
+      const mockConnection = jest.fn().mockReturnValue(queryBuilder);
 
       const rdsClient = {
         connection: mockConnection,
@@ -160,7 +159,8 @@ describe('CustomerRepository', () => {
       const results = await customerRepo.list({ name: 'John Doe' });
       
       expect(mockConnection).toHaveBeenCalledWith('customers');
-      expect(mockWhere).toHaveBeenCalledWith({ name: 'John Doe' });
+      expect(queryBuilder.where).toHaveBeenCalledWith({ name: 'John Doe' });
+      expect(mockSelect).toHaveBeenCalled();
       expect(results).toHaveLength(1);
       expect(results[0].name).toBe('John Doe');
     });

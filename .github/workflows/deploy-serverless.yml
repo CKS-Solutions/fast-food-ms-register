@@ -14,28 +14,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: npm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Generate Prisma Client
-        run: pnpm prisma:generate
+        run: npm ci
 
       - name: Build TypeScript
-        run: pnpm build
+        run: npm run build
 
       - name: Install Serverless Framework
-        run: pnpm add -g serverless
+        run: npm install -g serverless
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -46,28 +38,12 @@ jobs:
 
       - name: Deploy to AWS
         run: serverless deploy --stage api
-        env:
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-
-      - name: Get RDS Endpoint
-        id: rds-info
-        run: |
-          DB_HOST=$(aws cloudformation describe-stacks \
-            --stack-name ms-register-api \
-            --query 'Stacks[0].Outputs[?OutputKey==`DbHost`].OutputValue' \
-            --output text \
-            --region ${{ vars.AWS_REGION }})
-          
-          echo "DB_HOST=$DB_HOST" >> $GITHUB_OUTPUT
-          echo "RDS endpoint: $DB_HOST"
 
       - name: Migrate Database
-        run: pnpm prisma:migrate:deploy:production
+        run: npm run migrate:latest:production
         env:
-          NODE_ENV: production
-          RDS_HOSTNAME: ${{ steps.rds-info.outputs.DB_HOST }}
-          RDS_PORT: ${{ vars.RDS_PORT || '5432' }}
-          RDS_USERNAME: postgres
-          RDS_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ms_register
-          DATABASE_URL: postgresql://postgres:${{ secrets.DB_PASSWORD }}@${{ steps.rds-info.outputs.DB_HOST }}:${{ vars.RDS_PORT || '5432' }}/ms_register?schema=public
+          NODE_ENV: ci
+          RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
+          RDS_PORT: ${{ vars.RDS_PORT }}
+          RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
+          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
