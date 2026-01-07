@@ -23,7 +23,9 @@
   "collectCoverageFrom": [
     "src/**/*.(t|j)s",
     "!src/**/*.spec.ts",
-    "!src/**/*.test.ts"
+    "!src/**/*.test.ts",
+    "!src/**/*.bdd.test.ts",
+    "!src/**/migrations/*.ts"
   ],
   "coverageDirectory": "./coverage",
   "testPathIgnorePatterns": ["/node_modules/", "/dist/", "/fast-food-core-api/"]
