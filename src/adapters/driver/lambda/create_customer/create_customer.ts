@@ -16,7 +16,7 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const body = event.body ? JSON.parse(event.body) : null
     
-    if (!body || !body.cpf || !body.name) {
+    if (!body?.cpf || !body?.name) {
       throw new HTTPBadRequest("Missing required fields: cpf and name are required")
     }
 
