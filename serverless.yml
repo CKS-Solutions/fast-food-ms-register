@@ -1,4 +1,4 @@
-service: ms-register
+service: ms-register-v2
 frameworkVersion: '3'
 
 provider:
