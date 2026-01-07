@@ -3,7 +3,7 @@ import { Knex, knex } from "knex";
 let instance: RDSClientWrapper | null = null;
 
 const CLIENT = 'pg';
-const DATABASE = 'ms_order';
+const DATABASE = 'ms_register';
 
 export class RDSClientWrapper {
   connection: Knex;

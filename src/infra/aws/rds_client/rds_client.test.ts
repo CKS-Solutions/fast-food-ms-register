@@ -22,7 +22,7 @@ describe('RDSClientWrapper', () => {
     expect(calledWith.connection.host).toBe(host);
     expect(calledWith.connection.user).toBe(user);
     expect(calledWith.connection.password).toBe(password);
-    expect(calledWith.connection.database).toBe('ms_order');
+    expect(calledWith.connection.database).toBe('ms_register');
     expect(calledWith.connection.ssl).toEqual({ rejectUnauthorized: false });
   });
 
