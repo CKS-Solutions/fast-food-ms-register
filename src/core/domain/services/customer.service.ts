@@ -8,8 +8,6 @@ export interface ICustomerService {
 }
 
 export class CustomerService implements ICustomerService {
-  constructor() {}
-
   create(customer: CustomerDto) {
     return new Customer(
       customer.cpf,

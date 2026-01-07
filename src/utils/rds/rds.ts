@@ -1,6 +1,5 @@
 import { SMClientWrapper } from "@aws/sm_client";
 import { AwsRegion, AwsStage } from "@aws/utils";
-import { HTTPPreconditionFailed } from "@utils/http";
 
 const SECRET_ID = 'rds/fast-food-database-credentials';
 
