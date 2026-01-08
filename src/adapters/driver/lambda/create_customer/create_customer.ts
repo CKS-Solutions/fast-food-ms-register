@@ -16,13 +16,13 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     const body = event.body ? JSON.parse(event.body) : null
     
-    if (!body?.cpf || !body?.name) {
-      throw new HTTPBadRequest("Missing required fields: cpf and name are required")
+    if (!body?.cpf) {
+      throw new HTTPBadRequest("Missing required fields: cpf is required")
     }
 
     const customerDto: CustomerDto = {
       cpf: body.cpf,
-      name: body.name,
+      name: body.name || null,
       email: body.email || null,
       phone: body.phone || null,
     }
