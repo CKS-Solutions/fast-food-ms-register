@@ -56,7 +56,7 @@ defineFeature(feature, (test) => {
 
       const mockCustomer = new Customer(
         customerDto.cpf,
-        customerDto.name,
+        customerDto.name ?? '',
         customerDto.email ?? '',
         customerDto.phone ?? '',
       );
