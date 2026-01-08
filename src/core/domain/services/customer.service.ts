@@ -11,7 +11,7 @@ export class CustomerService implements ICustomerService {
   create(customer: CustomerDto) {
     return new Customer(
       customer.cpf,
-      customer.name,
+      customer.name ?? '',
       customer.email ?? '',
       customer.phone ?? '',
     );

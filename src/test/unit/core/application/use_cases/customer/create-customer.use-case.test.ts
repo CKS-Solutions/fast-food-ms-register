@@ -19,7 +19,7 @@ describe('CreateCustomerUseCase', () => {
 
   const mockCustomer: Customer = new Customer(
     mockCustomerDto.cpf,
-    mockCustomerDto.name,
+    mockCustomerDto.name ?? '',
     mockCustomerDto.email ?? '',
     mockCustomerDto.phone ?? '',
   );
