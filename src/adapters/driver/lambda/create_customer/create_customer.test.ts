@@ -107,7 +107,7 @@ describe('create_customer handler', () => {
 
     expect(result.statusCode).toBe(400)
     expect(JSON.parse(result.body)).toEqual({
-      message: 'Missing required fields: cpf and name are required',
+      message: 'Missing required fields: cpf is required',
     })
   })
 
@@ -122,22 +122,7 @@ describe('create_customer handler', () => {
 
     expect(result.statusCode).toBe(400)
     expect(JSON.parse(result.body)).toEqual({
-      message: 'Missing required fields: cpf and name are required',
-    })
-  })
-
-  it('should return 400 when name is missing', async () => {
-    const event: APIGatewayProxyEvent = {
-      body: JSON.stringify({
-        cpf: '12345678900',
-      }),
-    } as APIGatewayProxyEvent
-
-    const result = await handler(event)
-
-    expect(result.statusCode).toBe(400)
-    expect(JSON.parse(result.body)).toEqual({
-      message: 'Missing required fields: cpf and name are required',
+      message: 'Missing required fields: cpf is required',
     })
   })
 
