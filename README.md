@@ -4,7 +4,7 @@ Serviço de identificacao e cadastro do cliente.
 
 ### Estrutura
 
-<img width="769" height="527" alt="image" src="https://github.com/user-attachments/assets/ea918960-ddd7-4320-bfd8-597451d4e277" />
+<img width="758" height="368" alt="image" src="https://github.com/user-attachments/assets/801a2ee2-623e-4700-b816-3f37eedbb14c" />
 
 ### Serviços oferecidos/consumidos
 
